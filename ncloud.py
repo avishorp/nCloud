@@ -8,12 +8,15 @@ import vboxapi
 class NCloudRoot:
 
     def __init__(self):
-		self.vbox = VirtualBoxManager()
+		self.vbox = VBoxStateTracker()
 		self.vbox.start()
 
     @cherrypy.expose
     def index(self):
         raise cherrypy.HTTPRedirect(["/static/index.html"], 301)
+		
+	def __del__(self):
+		print "Deletingg  ......................"
 
 class VBoxEventDispatcher(object):
 	def __init__(self, vbmgr, source, eventMap, timeout = 500):
@@ -63,9 +66,9 @@ class VBoxEventDispatcher(object):
 		self.registered = False
 		self.eventListener.unregisterListener(self.listener)
 		
-class VirtualBoxManager(threading.Thread):
+class VBoxStateTracker(threading.Thread):
 	def __init__(self):
-		super(VirtualBoxManager, self).__init__()
+		super(VBoxStateTracker, self).__init__()
 		self.running = False
 		
 		# Initialize VirtualBox
@@ -82,13 +85,14 @@ class VirtualBoxManager(threading.Thread):
 		
 		# Register an event handler for creating & deleting of machines
 		e = VBoxEventDispatcher(self.manager, self.vb.eventSource, { 
-			self.const.VBoxEventType_OnMachineRegistered: (self.machineRegisteredHandler, 'IMachineRegisteredEvent')
+			self.const.VBoxEventType_OnMachineRegistered: (self.machineRegisteredHandler, 'IMachineRegisteredEvent'),
+			self.const.VBoxEventType_OnMachineStateChanged: (self.machineStateChangedHandler, 'IMachineStateChangedEvent'),
 			})
 		self.eventDispatchers = [ e ]
 		
 		
 	def run(self):
-		cherrypy.log("VirtualBoxManager event dispatching thread is starting")
+		cherrypy.log("VBoxStateTracker event dispatching thread is starting")
 		self.running = True
 		while(self.running):
 			# Wait for events
@@ -98,10 +102,15 @@ class VirtualBoxManager(threading.Thread):
 	def machineRegisteredHandler(self, ev):
 		cherrypy.log("Machine %s got %s" % (ev.machineId, "registered" if ev.registered else "unregistered"))
 		
+	def machineStateChangedHandler(self, ev):
+		states = self.const.all_values('MachineState')
+		istates = { states[k]:k for k in states }
+		cherrypy.log("Machine %s state changed to %s" % (ev.machineId, istates[ev.state]))
+		
 	def __del__(self):
 		# When deleting the object, stop the running thread first
 		if self.running == True:
-			cherrypy.log("VirtualBoxManager event dispatching thread is terminating")
+			cherrypy.log("VBoxStateTracker event dispatching thread is terminating")
 			self.running = False
 			self.join()
 			
