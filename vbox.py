@@ -3,11 +3,16 @@ sys.path.append('lib')
 
 import cherrypy, threading, logging
 from cherrypy.process import wspbus, plugins
-import os.path
+import os.path, json
 from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
+from ws4py.server.cherrypyserver import WebSocketTool
+
 import vboxapi
 import time
+
+# Register the websocket tool
+cherrypy.tools.websocket = WebSocketTool()
 
 class VBoxEventDispatcher(object):
 	def __init__(self, vbmgr, source, eventMap, timeout = 500):
@@ -81,7 +86,43 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 			})
 		self.eventDispatchers = [ e ]
 		
+		# Create a map from to decode MachineState enum
+		d = self.const.all_values('MachineState')
+		self.machineStateEnum = { d[k]: k for k in d } 
 		
+		# Register this object globally
+		globals()['gVBoxStateTracker'] = self
+		
+	def getVBoxManager(self):
+		return self.vb
+	
+	def getVBoxConstants(self):
+		return self.const
+	
+	def getMachines(self):
+		return self.machines
+	
+	def getMachineListOp(self):
+		l = [ self._opAdd(m) for m in self.machines.values() ]
+		return l
+
+	# Machine state update communication protocol
+	def _opAdd(self, machine):
+		return {
+			'op': 'add', 
+			'uuid': machine.id,
+			'name': machine.name,
+			'description': machine.description,
+			'ostype': machine.OSTypeId,
+			'cpus': machine.CPUCount,
+			'memory': machine.memorySize,
+			'state': self.machineStateEnum[machine.state]
+			}
+	
+	def _opDelete(self, uuid):
+		return {'op': 'del', 'uuid': uuid}
+
+	
 	def run(self):
 		cherrypy.log("VBoxStateTracker event dispatching thread is starting")
 		self.running = True
@@ -92,6 +133,40 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 	
 	def machineRegisteredHandler(self, ev):
 		cherrypy.log("Machine %s got %s" % (ev.machineId, "registered" if ev.registered else "unregistered"))
+		if ev.registered:
+			# New machine got registered
+			
+			# Add the new machine to the internal cache
+			machlist = self.manager.getArray(self.vb, 'machines')
+			newMachine = None
+			for m in machlist:
+				if m.id == ev.machineId:
+					newMachine = m
+					break
+				
+			if newMachine is None:
+				cherrypy.log.error("New machine registered, but not found on the list")
+				return
+			
+			self.machines[newMachine.id] = newMachine
+			
+			# Broadcast the message to the clients
+			op = self._opAdd(newMachine)
+			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
+			
+		else:
+			# Machine got unregistered
+			
+			# Remove the machine from the internal cache
+			try:
+				del self.machines[ev.machineId]
+			except KeyError:
+				cherrypy.log.error("Unregistered machine cound not be found in the internal cache")
+				
+			# Broadcast the message to all clients
+			op = self._opDelete(ev.machineId)
+			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))			
+
 		
 	def machineStateChangedHandler(self, ev):
 		states = self.const.all_values('MachineState')
@@ -108,11 +183,10 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 		# Unregister all events
 		for dsp in self.eventDispatchers:
 			dsp.unregister()
+			
+		# Remove the object instance from the global scope
+		globals()['gVBoxStateTracker'] = None
 		
-	@cherrypy.expose
-	def dlist(self):
-		ml = ''.join(["<li>%s: <em>%s</em></li>" % (m, self.machines[m].name) for m in self.machines])
-		return "<html><body><ul>%s</ul></body></html>" % ml
 
 class VBoxStatePlugin(plugins.SimplePlugin):
 	def __init__(self, bus):
@@ -125,10 +199,42 @@ class VBoxStatePlugin(plugins.SimplePlugin):
 	def stop(self):
 		self.vboxTracker.stop()
 			
-class VBoxWebSocket(WebSocket):
-	def ready(self):
-		cherrypy.log("VBWebSocket opened")
-
 class VBoxAPI(object):
-	pass
+	def __init__(self):
+		# For speed and convenience, create a map to decode
+		# MachineState
+		trk = self.getStateTracker(ValueError)
+
+
+		
+	def getStateTracker(self, exc = cherrypy.HTTPError(500)):
+		try:
+			# Try to obtain a global instance of VBoxStateTracker. If not found
+			# (or found, but it's None), log an error and abort
+			trk = globals()['gVBoxStateTracker']
+			if trk is None:
+				raise KeyError
+			
+			return trk
+		
+		except KeyError:
+			cherrypy.log.error('VBoxStateTracker instance not found')
+			raise exc
+		
+	@cherrypy.expose
+	@cherrypy.tools.json_out()
+	def list(self):
+		# Retrieves an initial list of registered machines
+		trk = self.getStateTracker()
+		machines = trk.getMachineListOp()
+		return machines
+	
+	@cherrypy.expose
+	@cherrypy.tools.websocket()
+	def feed(self):
+		# Request for a WebSocket for getting constant updated
+		pass
+	
+
+
 

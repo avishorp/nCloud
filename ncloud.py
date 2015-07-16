@@ -8,13 +8,13 @@ from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py import configure_logger
 import cherrypy, logging
 import os.path
-from vbox import VBoxStatePlugin
+from vbox import VBoxStatePlugin, VBoxAPI
 import vbox
 
 class NCloudRoot:
 
     def __init__(self):
-        pass
+        self.vbox = VBoxAPI()
 
     @cherrypy.expose
     def index(self):
@@ -24,7 +24,7 @@ class NCloudRoot:
 # Configure and register ws4py
 configure_logger(level=logging.DEBUG)
 WebSocketPlugin(cherrypy.engine).subscribe()
-cherrypy.tools.websocket = WebSocketTool()
+#cherrypy.tools.websocket = WebSocketTool()
 
 # Configure the VBox State Tracker Plugin
 VBoxStatePlugin(cherrypy.engine).subscribe()
