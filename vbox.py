@@ -83,6 +83,7 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 		e = VBoxEventDispatcher(self.manager, self.vb.eventSource, { 
 			self.const.VBoxEventType_OnMachineRegistered: (self.machineRegisteredHandler, 'IMachineRegisteredEvent'),
 			self.const.VBoxEventType_OnMachineStateChanged: (self.machineStateChangedHandler, 'IMachineStateChangedEvent'),
+			self.const.VBoxEventType_OnMachineDataChanged: (self.machineDataChangedHandler, 'IMachineDataChangedEvent'),
 			})
 		self.eventDispatchers = [ e ]
 		
@@ -103,13 +104,18 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 		return self.machines
 	
 	def getMachineListOp(self):
-		l = [ self._opAdd(m) for m in self.machines.values() ]
+		l = [ self._opModify(m, True) for m in self.machines.values() ]
 		return l
 
 	# Machine state update communication protocol
-	def _opAdd(self, machine):
+	def _opModify(self, machine, new = False):
+		if new:
+			op = 'add'
+		else:
+			op = 'modify'
+			
 		return {
-			'op': 'add', 
+			'op': op, 
 			'uuid': machine.id,
 			'name': machine.name,
 			'description': machine.description,
@@ -151,7 +157,7 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 			self.machines[newMachine.id] = newMachine
 			
 			# Broadcast the message to the clients
-			op = self._opAdd(newMachine)
+			op = self._opModify(newMachine, True)
 			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
 			
 		else:
@@ -161,7 +167,7 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 			try:
 				del self.machines[ev.machineId]
 			except KeyError:
-				cherrypy.log.error("Unregistered machine cound not be found in the internal cache")
+				cherrypy.log.error("Unregistered machine could not be found in the internal cache")
 				
 			# Broadcast the message to all clients
 			op = self._opDelete(ev.machineId)
@@ -172,6 +178,18 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 		states = self.const.all_values('MachineState')
 		istates = { states[k]:k for k in states }
 		cherrypy.log("Machine %s state changed to %s" % (ev.machineId, istates[ev.state]))
+
+	def machineDataChangedHandler(self, ev):
+		# Something has change with a currently listed machine.
+		# Get the machine from the list
+		try:
+			mach = self.machines[ev.machineId]
+		except KeyError:
+			cherrypy.log.error("Modified machine could not be found in the internal cache")
+			return
+		
+		op = self._opModify(mach)
+		cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
 		
 	def stop(self):
 		# When deleting the object, stop the running thread first

@@ -3,3 +3,13 @@
   height: 16px;
   margin-right: 1em;
   }
+
+.shortuuid-tooltip {
+	padding: 8px;
+	position: absolute;
+	z-index: 9999;
+	max-width: 600px;
+	background-color: yellow;
+	border-style: none;
+	
+}

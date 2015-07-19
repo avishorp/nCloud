@@ -13,6 +13,8 @@
 
   <script>
   $(function() {
+	  // Enable tooltips
+	  $( document ).tooltip({ tooltipClass: "shortuuid-tooltip" });
 	  // Create the VM table
     $("#tabs").tabs();
 	var t = $("#vmtable").DataTable(
@@ -23,6 +25,7 @@
 	   "searching": false
 	 }
 	);
+	t.column(0).visible(false); // Column 0 is the raw UUID
 	
 	// Populate it
 	$.ajax({
@@ -58,33 +61,60 @@
   function execTableCommand(cmd)
   {
     op = cmd.op;
-	var table = $("#vmtable").DataTable();
+    var table = $("#vmtable").DataTable(); 
     
     switch(op) {
       case "add":
+      case "modify":
     	// Add machine to the list
-        var name = cmd.name
         var uuid = cmd.uuid
-        var description = cmd.description
-        var ostype = cmd.ostype
-        var cpus = cmd.cpus
-        var memory = cmd.memory
-        var state = cmd.state
-		table.row.add(["<em>" + state + "</em>", name, uuid, memory, cpus, ostype, description]).draw();
+        var uuid_short = "<span class='shortuuid' title='" + uuid + "'>" + uuid.substr(uuid.length-6, 6) + "</span>";
+      
+        var drow = [
+            uuid,
+			"<em>" + cmd.state + "</em>", // state
+			cmd.name, // name
+			uuid_short, // uuid
+			cmd.memory, // Memory size
+			cmd.cpus, // Number of CPUs
+			cmd.ostype, // OS Type
+			cmd.description // Description
+                   ]
+        
+        if (op === "add")
+			table.row.add(drow).draw();
+        else {
+        	try {
+        		r = findRowByUUID(uuid);
+        		r.data(drow).draw()
+        	}
+        	catch(err) {
+        		console.error("[modify] " + err);
+        	}
+        }
         break;
         
       case "del":
-    	  var id = cmd.uuid
-    	  var ids = table.column(2).data()
-    	  var irow = ids.indexOf(id)
-    	  if (irow >= 0) {
-    		  table.row(irow).remove().draw()
+      	// delete machine from the list
+    	  try {
+    		  findRowByUUID(cmd.uuid).remove().draw()
     	  }
-    	  else {
-    		  console.error("[del] Expected uuid " + id + " not found in the table")
+    	  catch(err) {
+    		  console.error("[del] " + err);
     	  }
-    	// delete machine from the list
     }
+  }
+  
+  function findRowByUUID(uuid) {
+	  var table = $("#vmtable").DataTable(); 
+	  var ids = table.column(0).data()
+	  var irow = ids.indexOf(uuid)
+	  if (irow >= 0) {
+		  return table.row(irow)
+	  }
+	  else {
+		  throw "Row with UUID " + uuid + " not found on the table";
+	  }
   }
   
   /*
@@ -123,6 +153,7 @@
 <table id="vmtable" width="100%">
   <thead>
     <tr>
+      <th></th>
       <th></th>
 	  <th>Name</th>
 	  <th>ID</th>
