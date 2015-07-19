@@ -52,11 +52,17 @@
     	execTableCommand(cmd)
     };
   
-    ws.onopen = function (evy) {
-      //ws.send('blahblah');
+    ws.onclose = function (evt) {
+		fatalAppError("Disconnected from server. <a href='#' onclick='javascript: location.reload()'>Reload the page</a>")
     }
 
   });
+  
+  function fatalAppError(message) {
+	  $('#screen').show();
+	  $('#fatal-notification').html(message);
+	  $('#fatal-notification').show();
+  }
   
   function execTableCommand(cmd)
   {
@@ -117,27 +123,6 @@
 	  }
   }
   
-  /*
-  websocket = 'ws://localhost:8085/vbfeed';
-  if (window.WebSocket) {
-    ws = new WebSocket(websocket);
-  }
-  else if (window.MozWebSocket) {
-    ws = MozWebSocket(websocket);
-  }
-  else {
-    console.log('WebSocket Not Supported');
-  }
-
-  ws.onmessage = function (evt) {
-    alert('got message:' + evt.data);
-  };
-  
-  ws.onopen = function (evy) {
-    //ws.send('blahblah');
-  }
-  */
-  
 
   </script>
 </head>
@@ -175,7 +160,11 @@
     <p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
   </div>
 </div>
+
+<div id="screen"></div>
+<div class="notification-bar" id="fatal-notification"></div>
  
+ <a href="#" onclick="javascript: fatalAppError()">Click</a>
  
 </body>
 </html>
