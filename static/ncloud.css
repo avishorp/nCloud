@@ -38,3 +38,25 @@
 	text-align: center;
 	font-family: arial;
 }
+
+.mach-state-icon {
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+.vm-state-FirstOnline {
+	content: url(/static/icon-play.png);
+}
+
+.vm-state-PoweredOff {
+	content: url(/static/icon-stop.png);
+}
+
+.vm-state-Aborted {
+	content: url(/static/icon-stop.png);
+}
+
+.vm-state-Paused {
+	content: url(/static/icon-pause.png);
+}
+

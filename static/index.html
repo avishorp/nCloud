@@ -12,6 +12,46 @@
   <link rel="stylesheet" href="/static/ncloud.css">
 
   <script>
+  // Machine state/control plugin
+  (function($) {
+	  $.fn.machineCtrl = function(initState) {
+		 /* var settings = $.extend({
+			  uuid: '',       // UUID of the machine (mandatory)
+			  initState: '',  // Its initial state (mandatory)
+		  }, options);*/
+		  
+		  this.each(function(index, el) {
+			  setStateClass(el, stateToClass(initState));			  
+		  })
+
+		  return this;
+	  }
+	  
+	  function stateToClass(state) {
+		  // Make sure the state is legal
+		  var states = ["PoweredOff", "Starting", "FirstOnline", "Paused", "Aborted"];
+		  if (states.indexOf(state) >= 0) {
+			  return "vm-state-" + state;
+		  }
+		  else {
+			  console.error("Illegal state [" + state + "] received");
+		  }
+	  }
+	  
+	  function setStateClass(obj, clz) {
+		cl = obj.classList;
+		ncl = []
+		cl.forEach(function(el) {
+			if (!el.startsWith("vm-state-"))
+				ncl.push(el);
+		})
+		ncl.push(clz);
+		obj.className = ncl.join(" ");
+	  }
+	  
+	  
+  }(jQuery));
+  
   $(function() {
 	  // Enable tooltips
 	  $( document ).tooltip({ tooltipClass: "shortuuid-tooltip" });
@@ -78,7 +118,7 @@
       
         var drow = [
             uuid,
-			"<em>" + cmd.state + "</em>", // state
+			"<span class='mach-state-icon' id='mstate-" + uuid + "'/>", // state
 			cmd.name, // name
 			uuid_short, // uuid
 			cmd.memory, // Memory size
@@ -87,8 +127,10 @@
 			cmd.description // Description
                    ]
         
-        if (op === "add")
+        if (op === "add") {
 			table.row.add(drow).draw();
+			$("#mstate-"+uuid).machineCtrl(cmd.state);
+        }
         else {
         	try {
         		r = findRowByUUID(uuid);
@@ -121,6 +163,11 @@
 	  else {
 		  throw "Row with UUID " + uuid + " not found on the table";
 	  }
+  }
+  
+  function machControlElement(initState) {
+	  el = "<img class='mach-state-icon mach-state-started'/>";
+	  return el;
   }
   
 
