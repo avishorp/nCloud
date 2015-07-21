@@ -1,3 +1,8 @@
+body {
+	font-family: arial;
+	
+}
+
 .tab-logo {
   width: 16px;
   height: 16px;
@@ -75,4 +80,37 @@
     100% { opacity: 0; }
 }
 
+/*
+Machine Control pop-up menu
+===========================
+*/
+
+.mach-control-menu {
+  -webkit-user-select: none;
+  display: none;
+  position: absolute;
+  left: 400px;
+  top: 100px;
+  min-width: 100px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  background-color: #f7f3f7;
+  border: 2px solid #f7f7f7;
+  outline: 1px solid #949694;
+  font-weight: bold;
+}
+
+.mach-control-menu > li {
+  margin: 2px 0 0 0;
+  padding: 2px 0 2px 0;
+  background-repeat: no-repeat;
+    width: 100%;
+}
+
+.mach-control-menu > li:hover {
+  background: cyan;
+    cursor: default;
+    width: 100%;
+}
 
