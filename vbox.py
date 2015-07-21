@@ -127,6 +127,13 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 	
 	def _opDelete(self, uuid):
 		return {'op': 'del', 'uuid': uuid}
+	
+	def _opMachState(self, uuid, newstate):
+		return {
+			'op': 'machstate',
+			'uuid': uuid,
+			'newstate': self.machineStateEnum[newstate]
+			}
 
 	
 	def run(self):
@@ -175,9 +182,9 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 
 		
 	def machineStateChangedHandler(self, ev):
-		states = self.const.all_values('MachineState')
-		istates = { states[k]:k for k in states }
-		cherrypy.log("Machine %s state changed to %s" % (ev.machineId, istates[ev.state]))
+		cherrypy.log("Machine %s state changed to %s" % (ev.machineId, self.machineStateEnum[ev.state]))
+		op = self._opMachState(ev.machineId, ev.state)
+		cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
 
 	def machineDataChangedHandler(self, ev):
 		# Something has change with a currently listed machine.

@@ -60,3 +60,19 @@
 	content: url(/static/icon-pause.png);
 }
 
+.vm-state-Starting {
+	content: url(/static/icon-play.png);
+	animation: softblink 0.3s infinite alternate;
+}
+
+.vm-state-Stopping {
+	content: url(/static/icon-stop.png);
+	animation: softblink 0.3s infinite alternate;
+}
+
+@keyframes softblink {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
