@@ -260,6 +260,30 @@ class VBoxAPI(object):
 		# Request for a WebSocket for getting constant updated
 		pass
 	
+	@cherrypy.expose
+	def vmstart(self, uuid=''):
+		"Start a VirtualBox machine"
+		cherrypy.log("VirtualBox: START %s" % uuid)
+
+	@cherrypy.expose	
+	def vmpoweroffacpi(self, uuid=''):
+		"Power off (ACPI) a VirtualBox machine"
+		cherrypy.log("VirtualBox: ACPI POWEROFF %s" % uuid)
+
+	@cherrypy.expose
+	def vmpoweroff(self, uuid=''):
+		"Power off a VirtualBox machine"
+		cherrypy.log("VirtualBox: ACPI POWEROFF %s" % uuid)
+
+	@cherrypy.expose		
+	def vmpause(self, uuid=''):
+		"Pause a VirtualBox machine"
+		cherrypy.log("VirtualBox: PAUSE %s" % uuid)
+
+	@cherrypy.expose
+	def vmresume(self, uuid=''):
+		"Resume a VirtualBox machine"
+		cherrypy.log("VirtualBox: RESUME %s" % uuid)
 
 
 
