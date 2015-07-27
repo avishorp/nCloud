@@ -124,5 +124,11 @@ Machine Control pop-up menu
 	display: none;
 }
 
+.menu-grayed {
+	background-color: black;
+	opacity: 0.5;
+}
+
+
 
 

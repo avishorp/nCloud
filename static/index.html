@@ -27,15 +27,29 @@
 				  $.extend(this, {_mach_popup: true});
 			  }
 
-			  setStateClass(el, stateToClass(initState));			  
+			  // Set the class to the state icon
+			  setStateClass(el, stateToClass(initState));
+			  
+			  // Enable/disable appropriate menu items
+			  $('#mach-control-menu-' + uuid + " li").each(function(indx, val) {
+				 if (_machControlMenu[indx].enabled.indexOf(initState) != -1)
+					 // Enable the item
+					 $(val).removeClass('menu-grayed');
+				 else
+					 $(val).addClass('menu-grayed');
+			  });
 		 
 		    });
   		    
   	    return this;
 	}
-
-
-	  
+	  var _machControlMenu = [
+			  { title: 'Start', op: 'vmstart', enabled: ['PoweredOff', 'Aborted'] },
+			  { title: 'Power Off (ACPI}', op: 'vmpoweroffacpi', enabled: ['FirstOnline', 'Paused'] },
+			  { title: 'Power Off', op: 'vmpoweroff', enabled: ['FirstOnline'] },
+			  { title: 'Pause', op: 'vmpause', enabled: ['FirstOnline'] },
+			  { title: 'Resume', op: 'vmpause', enabled: ['Paused'] },
+	  ]
  
 	  function stateToClass(state) {
 		  // Make sure the state is legal
@@ -67,15 +81,13 @@
 	  function createPopupMenu(target, uuid) {
 		  var menu = $('<ul>');
 		  menu.addClass("mach-control-menu");
+		  menu.attr('id', 'mach-control-menu-' + uuid)
 		  
 		  // Create menu items
-		  menu
-		    .append(createPopupMenuItem("Start", uuid, 'vmstart', ""))
-		    .append(createPopupMenuItem("Power Off (ACPI)", uuid, 'vmpoweroffacpi', ""))
-		    .append(createPopupMenuItem("Power Off", uuid, 'vmpoweroff', ""))
-		    .append(createPopupMenuItem("Pause", uuid, 'vmpause', ""))
-		    .append(createPopupMenuItem("Resume", uuid, 'vmresume', ""));
-		  
+		  $.each(_machControlMenu, function(indx, val) {
+			 menu.append(createPopupMenuItem(val['title'], uuid, val['op'], "")); 
+		  });
+
 		  // Append the menu to the target element
 		  target.append(menu);
 		  
@@ -292,7 +304,7 @@
 
  
  <!-- Machine control context menu -->
- <a href="#" onclick="javascript: fatalAppError()">Click</a>
+ <a href="#" onclick="javascript: $()">Click</a>
  
 <!-- Screen for context menu -->
 <div id="mach-control-menu-screen"></div>
