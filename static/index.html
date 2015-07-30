@@ -54,7 +54,7 @@
  
 	  function stateToClass(state) {
 		  // Make sure the state is legal
-		  var states = ["PoweredOff", "Starting", "FirstOnline", "Paused", "Aborted", "Stopping"];
+		  var states = ["PoweredOff", "Starting", "FirstOnline", "Paused", "Aborted", "Stopping", "_pending"];
 		  if (states.indexOf(state) >= 0) {
 			  return "vm-state-" + state;
 		  }
@@ -125,6 +125,11 @@
 		  hl.attr('href', '#');
 		  hl.append(title);
 		  hl.click(function() {
+			// Check if the item is not grayed
+			if ($(this).parent().hasClass('menu-grayed'))
+				// Grayed - return without doing anything (not even close the menu)
+			    return
+			    
 			// Execute the menu operation
            	var opurl = "/vbox/" + op + "?uuid=" + uuid;
        		$.ajax({
@@ -136,6 +141,10 @@
 			// Hide the menu
 			$(this).parent().parent().hide();
 			$('#mach-control-menu-screen').hide();
+			
+			// Change the machine state to "pending"
+			cmd = { op: 'machstate', uuid: uuid, newstate: '_pending' };
+			execTableCommand(cmd);
 		  });
 		  
 		  return li.append(hl);
@@ -180,8 +189,8 @@
     }
 
     ws.onmessage = function (evt) {
-    	var cmd = $.parseJSON(evt.data)
-    	execTableCommand(cmd)
+    	var cmd = $.parseJSON(evt.data);
+    	execTableCommand(cmd);
     };
   
     ws.onclose = function (evt) {

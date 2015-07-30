@@ -75,6 +75,10 @@ body {
 	animation: softblink 0.3s infinite alternate;
 }
 
+.vm-state-_pending {
+	content: url(/static/ajax-loader.gif);
+}
+
 @keyframes softblink {
     0% { opacity: 1; }
     100% { opacity: 0; }
