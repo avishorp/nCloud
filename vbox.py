@@ -1,6 +1,7 @@
 import sys
 sys.path.append('lib')
 
+import pythoncom
 import cherrypy, threading, logging
 from cherrypy.process import wspbus, plugins
 import os.path, json
@@ -86,6 +87,10 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 			self.const.VBoxEventType_OnMachineDataChanged: (self.machineDataChangedHandler, 'IMachineDataChangedEvent'),
 			})
 		self.eventDispatchers = [ e ]
+
+		# Progress monitor list		
+		self.progressMonitors = []
+
 		
 		# Create a map from to decode MachineState enum
 		d = self.const.all_values('MachineState')
@@ -99,6 +104,27 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 	
 	def getVBoxConstants(self):
 		return self.const
+	
+	def startMachine(self, uuid):
+		# Create a session object
+		sess = self.manager.getSessionObject(self.vb)
+		
+		# Get the machine object
+		mach = self.machines[uuid]
+		
+		# Power up the machine
+		try:
+			progress = mach.launchVMProcess(sess, "headless", "")
+		except pythoncom.com_error, e:
+			message = "Error while Starting VM: %s" % e.excepinfo[2]
+			op = self._opAsyncError(message, mach.id) 
+			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
+			
+			return
+		
+		# Add the progress object to the monitor list
+		self.progressMonitors.append((progress, mach))
+		
 	
 	def getMachines(self):
 		return self.machines
@@ -134,6 +160,13 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 			'uuid': uuid,
 			'newstate': self.machineStateEnum[newstate]
 			}
+		
+	def _opAsyncError(self, message, uuid):
+		return {
+			'op': 'asyncerror',
+			'uuid': uuid,
+			'message': message
+			}
 
 	
 	def run(self):
@@ -143,6 +176,21 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 			# Wait for events
 			for dsp in self.eventDispatchers:
 				dsp.process()
+				
+			# Watch progress monitors for completion
+			for pmpair in self.progressMonitors:
+				pm = pmpair[0]   # IProgress interface
+				mach = pmpair[1] # IMachine interface
+				
+				if pm.completed == 1:
+					# Task completed OK. Remove it from the monitor list
+					self.progressMonitors.remove(pmpair)
+					
+					if pm.resultCode != 0:
+						# Task completed with error.
+						message = "Error while %s <em>%s</em>: %s" % (pm.description, mach.name, pm.errorInfo.text)
+						op = self._opAsyncError(message, mach.id) 
+						cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
 	
 	def machineRegisteredHandler(self, ev):
 		cherrypy.log("Machine %s got %s" % (ev.machineId, "registered" if ev.registered else "unregistered"))
@@ -264,6 +312,11 @@ class VBoxAPI(object):
 	def vmstart(self, uuid=''):
 		"Start a VirtualBox machine"
 		cherrypy.log("VirtualBox: START %s" % uuid)
+		
+		# Create a session object
+		trk = self.getStateTracker().startMachine(uuid)
+
+		
 
 	@cherrypy.expose	
 	def vmpoweroffacpi(self, uuid=''):

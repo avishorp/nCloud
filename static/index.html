@@ -8,6 +8,7 @@
   <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+<script src="/static/js/jquery.noty.packaged.min.js"></script>
 
   <link rel="stylesheet" href="/static/ncloud.css">
 
@@ -186,6 +187,11 @@
     ws.onclose = function (evt) {
 		fatalAppError("Disconnected from server. <a href='#' onclick='javascript: location.reload()'>Reload the page</a>")
     }
+    
+    
+    // noty defaults
+    ////////////////
+    $.noty.defaults.timeout = 5000;
 
   });
   
@@ -241,10 +247,17 @@
     	  catch(err) {
     		  console.error("[del] " + err);
     	  }
+    	  break;
     	  
       case "machstate":
     	  // Update a machine state
     	  machineStateElement(cmd.uuid).machineCtrl(cmd.newstate);
+    	  break;
+    	  
+      case "asyncerror":
+    	  // Asynchronous error
+    	  noty({text: cmd.message, type: "error"});
+    	  break;
     }
   }
   
