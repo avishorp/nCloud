@@ -104,26 +104,67 @@ class VBoxStateTracker(threading.Thread, plugins.SimplePlugin):
 	
 	def getVBoxConstants(self):
 		return self.const
-	
-	def startMachine(self, uuid):
+
+	def getSessionAndMachine(self, uuid, attach = False):
 		# Create a session object
 		sess = self.manager.getSessionObject(self.vb)
 		
 		# Get the machine object
 		mach = self.machines[uuid]
 		
+		# If requested, try to attach the new session to the machine
+		if attach:
+			mach.lockMachine(sess, self.const.LockType_Shared)
+		
+		return (sess, mach)
+	
+	def handleCOMError(self, uuid, operation, err):
+			message = "Error while %s: %s" % (operation, err.excepinfo[2])
+			
+			# Log the message
+			cherrypy.log.error("Machine %s: %s" % (uuid, message))
+			
+			# Report to the client
+			op = self._opAsyncError(message, uuid) 
+			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
+			
+			# Refresh the machine state
+			op = self._opMachState(uuid, self.machines[uuid].state)
+			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
+			
+	def startMachine(self, uuid):
+		sess, mach = self.getSessionAndMachine(uuid) 
+		
 		# Power up the machine
 		try:
 			progress = mach.launchVMProcess(sess, "headless", "")
 		except pythoncom.com_error, e:
-			message = "Error while Starting VM: %s" % e.excepinfo[2]
-			op = self._opAsyncError(message, mach.id) 
-			cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(op)))
+			self.handleCOMError(uuid, "Starting VM", e)
 			
 			return
 		
 		# Add the progress object to the monitor list
 		self.progressMonitors.append((progress, mach))
+		
+	def controlMachine(self, uuid, command):
+		try:
+			# Create a session object
+			sess, mach = self.getSessionAndMachine(uuid, True)
+
+			# Find the appropriate function to call
+			fn = {
+				'powerdown': sess.console.powerDown,
+				'powerdownacpi': sess.console.powerButton,
+				'pause': sess.console.pause,
+				'resume': sess.console.resume,
+				'reset': sess.console.reset
+			}[command]
+			
+			# Execute the command
+			fn();
+			
+		except pythoncom.com_error, e:
+			self.handleCOMError(uuid, "Stopping VM", e)
 		
 	
 	def getMachines(self):
@@ -278,7 +319,6 @@ class VBoxAPI(object):
 		# MachineState
 		trk = self.getStateTracker(ValueError)
 
-
 		
 	def getStateTracker(self, exc = cherrypy.HTTPError(500)):
 		try:
@@ -312,9 +352,7 @@ class VBoxAPI(object):
 	def vmstart(self, uuid=''):
 		"Start a VirtualBox machine"
 		cherrypy.log("VirtualBox: START %s" % uuid)
-		
-		# Create a session object
-		trk = self.getStateTracker().startMachine(uuid)
+		self.getStateTracker().startMachine(uuid)
 
 		
 
@@ -322,21 +360,25 @@ class VBoxAPI(object):
 	def vmpoweroffacpi(self, uuid=''):
 		"Power off (ACPI) a VirtualBox machine"
 		cherrypy.log("VirtualBox: ACPI POWEROFF %s" % uuid)
+		self.getStateTracker().controlMachine(uuid, 'powerdownacpi')
 
 	@cherrypy.expose
 	def vmpoweroff(self, uuid=''):
 		"Power off a VirtualBox machine"
 		cherrypy.log("VirtualBox: ACPI POWEROFF %s" % uuid)
+		self.getStateTracker().controlMachine(uuid, 'powerdown')
 
 	@cherrypy.expose		
 	def vmpause(self, uuid=''):
 		"Pause a VirtualBox machine"
 		cherrypy.log("VirtualBox: PAUSE %s" % uuid)
+		self.getStateTracker().controlMachine(uuid, 'pause')
 
 	@cherrypy.expose
 	def vmresume(self, uuid=''):
 		"Resume a VirtualBox machine"
 		cherrypy.log("VirtualBox: RESUME %s" % uuid)
+		self.getStateTracker().controlMachine(uuid, 'resume')
 
 
 
