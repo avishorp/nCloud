@@ -1,5 +1,5 @@
 body {
-	font-family: arial;
+	font-family: tahoma;
 	
 }
 
@@ -41,7 +41,6 @@ body {
 	text-color: black;
 	display: none;
 	text-align: center;
-	font-family: arial;
 }
 
 .mach-state-icon {
@@ -102,20 +101,38 @@ Machine Control pop-up menu
   background-color: #f7f3f7;
   border: 2px solid #f7f7f7;
   outline: 1px solid #949694;
-  font-weight: bold;
 }
 
 .mach-control-menu > li {
-  margin: 2px 0 0 0;
-  padding: 2px 0 2px 0;
+  margin: 2px 4px 0 0;
+  padding: 4px 0 4px 0;
   background-repeat: no-repeat;
-    width: 100%;
+  width: 100%;
+}
+
+.mach-control-menu > li > a {
+	text-decoration: none;
+	color: #000000;
+	cursor: default;
+}
+
+.mach-control-menu > li.menu-grayed > a {
+	color: #808080;
 }
 
 .mach-control-menu > li:hover {
-  background: cyan;
-    cursor: default;
-    width: 100%;
+  background: #A0A0A0;
+  width: 100%;
+}
+
+.mach-control-menu > li.menu-grayed:hover {
+  background: none;
+}
+
+.mach-control-menu > li > img {
+	padding-right: 4px;
+	display: inline-block;
+	transform: translateY(0.2em);
 }
 
 #mach-control-menu-screen {
@@ -127,12 +144,6 @@ Machine Control pop-up menu
 	zIndex: 1000000;
 	display: none;
 }
-
-.menu-grayed {
-	background-color: black;
-	opacity: 0.5;
-}
-
 
 
 

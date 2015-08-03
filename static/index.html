@@ -45,11 +45,11 @@
   	    return this;
 	}
 	  var _machControlMenu = [
-			  { title: 'Start', op: 'vmstart', enabled: ['PoweredOff', 'Aborted'] },
-			  { title: 'Power Off (ACPI}', op: 'vmpoweroffacpi', enabled: ['FirstOnline', 'Paused'] },
-			  { title: 'Power Off', op: 'vmpoweroff', enabled: ['FirstOnline'] },
-			  { title: 'Pause', op: 'vmpause', enabled: ['FirstOnline'] },
-			  { title: 'Resume', op: 'vmresume', enabled: ['Paused'] },
+			  { title: 'Start', op: 'vmstart', img: 'control.png', enabled: ['PoweredOff', 'Aborted'] },
+			  { title: 'Power Off (ACPI)', op: 'vmpoweroffacpi', img: 'control-power.png', enabled: ['FirstOnline', 'Paused'] },
+			  { title: 'Power Off', op: 'vmpoweroff', img: 'control-stop-square.png', enabled: ['FirstOnline'] },
+			  { title: 'Pause', op: 'vmpause', img: 'control-pause.png', enabled: ['FirstOnline'] },
+			  { title: 'Resume', op: 'vmresume', img: 'control-double.png', enabled: ['Paused'] },
 	  ]
  
 	  function stateToClass(state) {
@@ -86,7 +86,7 @@
 		  
 		  // Create menu items
 		  $.each(_machControlMenu, function(indx, val) {
-			 menu.append(createPopupMenuItem(val['title'], uuid, val['op'], "")); 
+			 menu.append(createPopupMenuItem(val['title'], uuid, val['op'], val['img'], "")); 
 		  });
 
 		  // Append the menu to the target element
@@ -119,11 +119,15 @@
 		  $('body').append(menu);
 	  }
 	  
-	  function createPopupMenuItem(title, uuid, op, clazz) {
+	  function createPopupMenuItem(title, uuid, op, img, clazz) {
 		  var li = $('<li>');
 		  var hl = $('<a>');
 		  hl.attr('href', '#');
 		  hl.append(title);
+		  
+		  var icon = $('<img/>');
+		  icon.attr('src', "img/" + img);
+		  
 		  hl.click(function() {
 			// Check if the item is not grayed
 			if ($(this).parent().hasClass('menu-grayed'))
@@ -147,7 +151,7 @@
 			execTableCommand(cmd);
 		  });
 		  
-		  return li.append(hl);
+		  return li.append(icon).append(hl);
 	  }
 	  
 	  
