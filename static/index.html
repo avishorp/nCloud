@@ -32,7 +32,7 @@
 			  setStateClass(el, stateToClass(initState));
 			  
 			  // Enable/disable appropriate menu items
-			  $('#mach-control-menu-' + uuid + " li").each(function(indx, val) {
+			  $('#mach-control-menu-' + uuid).find("li").each(function(indx, val) {
 				 if (_machControlMenu[indx].enabled.indexOf(initState) != -1)
 					 // Enable the item
 					 $(val).removeClass('menu-grayed');
