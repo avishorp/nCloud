@@ -9,6 +9,11 @@ body {
   margin-right: 1em;
   }
 
+.uuid {
+	font-family: 'Roboto Mono';
+	text-transform: uppercase;
+}
+
 .shortuuid-tooltip {
 	padding: 8px;
 	position: absolute;
@@ -82,6 +87,7 @@ body {
     0% { opacity: 1; }
     100% { opacity: 0; }
 }
+
 
 /*
 Machine Control pop-up menu

@@ -9,6 +9,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
 <script src="/static/js/jquery.noty.packaged.min.js"></script>
+<link href='http://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="/static/ncloud.css">
   <link rel="stylesheet" href="/static/vmtable.css">
@@ -160,7 +161,7 @@
   
   $(function() {
 	  // Enable tooltips
-	  $( document ).tooltip({ tooltipClass: "shortuuid-tooltip" });
+	  $( document ).tooltip({ tooltipClass: "uuid shortuuid-tooltip" });
 	  // Create the VM table
     $("#tabs").tabs();
 	var t = $("#vmtable").DataTable(
@@ -225,7 +226,7 @@
       case "modify":
     	// Add machine to the list
         var uuid = cmd.uuid
-        var uuid_short = "<span class='shortuuid' title='" + uuid + "'>" + uuid.substr(uuid.length-6, 6) + "</span>";
+        var uuid_short = "<span class='uuid shortuuid' title='" + uuid + "'>" + uuid.substr(uuid.length-6, 6) + "</span>";
       
         var drow = [
             uuid,
