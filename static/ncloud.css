@@ -145,5 +145,31 @@ Machine Control pop-up menu
 	display: none;
 }
 
+/*
+Machine Control pop-up menu
+===========================
+Source: http://keith-wood.name/uitabs.html#tabs-nobg
+*/
+.tabs-nohdr { 
+    padding: 0px; 
+    background: none; 
+    border-width: 0px; 
+} 
+.tabs-nohdr .ui-tabs-nav { 
+    padding-left: 0px; 
+    background: transparent; 
+    border-width: 0px 0px 1px 0px; 
+    -moz-border-radius: 0px; 
+    -webkit-border-radius: 0px; 
+    border-radius: 0px; 
+} 
+.tabs-nohdr .ui-tabs-panel { 
+	border: none;
+     
+}
+
+.tabs-nohdr .ui-tabs-nav {
+	padding-left: 20px;
+}
 
 
