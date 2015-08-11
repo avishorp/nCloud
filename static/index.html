@@ -256,15 +256,14 @@
       case "modify":
     	// Add machine to the list
         var uuid = cmd.uuid
-        var uuid_short = "<span class='uuid shortuuid' title='" + uuid + "'>" + uuid.substr(0, 6) + "</span>";
       
         var drow = [
             uuid,
 			"<span class='mach-state-icon' id='mstate-" + uuid + "'/>", // state
 			cmd.name, // name
 			'', // uuid
-			cmd.memory, // Memory size
-			cmd.cpus, // Number of CPUs
+			"<span class='mach-memory'>" + cmd.memory + "</span>", // Memory size
+			"<span class='mach-cpus'>" + cmd.cpus + "</span>", // Number of CPUs
 			cmd.ostype, // OS Type
 			cmd.description // Description
                    ]

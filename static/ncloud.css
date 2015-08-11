@@ -9,9 +9,14 @@ body {
   margin-right: 1em;
   }
 
-.uuid {
-	font-family: 'Roboto Mono';
-	text-transform: uppercase;
+.mach-memory {
+	text-align: center;
+	display: block;
+}
+
+.mach-cpus {
+	text-align: center;
+	display: block;
 }
 
 .shortener-short {
