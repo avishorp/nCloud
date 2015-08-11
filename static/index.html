@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/static/vmtable.css">
 
   <script>
+  // UUID show/hide
   // Machine state/control plugin
   (function($) {
 	  $.fn.machineCtrl = function(initState) {
@@ -159,9 +160,38 @@
 	  
   }(jQuery));
   
+  
+  // shortener Plugin
+  ///////////////////
+  (function($) {
+	  $.fn.shortener = function(text, shortLen) {
+		  // Short form
+		  var shorttext = $('<span class="shortener-short">' + text.substr(0, shortLen) + '</span>');
+		  $(this).append(shorttext);
+		  
+		  // Long form
+		  var longtext = $('<span class="shortener-long">' + text + '</span>');
+		  $(this).append(longtext);
+		  
+		  // Attach the hover process
+		  $(this).hover(
+				  // Handler In
+				  function(e) {
+					  longtext.css(shorttext.position());
+					  longtext.show();
+				  },
+				  
+		          // Handler Out
+		          function(e) {
+					  longtext.hide();
+				  }
+		  );
+	  }
+  }(jQuery));
+  
   $(function() {
 	  // Enable tooltips
-	  $( document ).tooltip({ tooltipClass: "uuid shortuuid-tooltip" });
+//	  $( document ).tooltip({ tooltipClass: "uuid shortuuid-tooltip" });
 	  // Create the VM table
     $("#tabs").tabs();
 	var t = $("#vmtable").DataTable(
@@ -226,13 +256,13 @@
       case "modify":
     	// Add machine to the list
         var uuid = cmd.uuid
-        var uuid_short = "<span class='uuid shortuuid' title='" + uuid + "'>" + uuid.substr(uuid.length-6, 6) + "</span>";
+        var uuid_short = "<span class='uuid shortuuid' title='" + uuid + "'>" + uuid.substr(0, 6) + "</span>";
       
         var drow = [
             uuid,
 			"<span class='mach-state-icon' id='mstate-" + uuid + "'/>", // state
 			cmd.name, // name
-			uuid_short, // uuid
+			'', // uuid
 			cmd.memory, // Memory size
 			cmd.cpus, // Number of CPUs
 			cmd.ostype, // OS Type
@@ -240,7 +270,8 @@
                    ]
         
         if (op === "add") {
-			table.row.add(drow).draw();
+        	var rr = table.row.add(drow).draw().node();
+        	$(rr.cells[2]).shortener(uuid, 6);
 			machineStateElement(uuid).machineCtrl(cmd.state);
         }
         else {
@@ -290,6 +321,11 @@
   
   function machineStateElement(uuid) {
 	  return $("#mstate-"+uuid);
+  }
+  
+  function uuidtest() {
+	  var e = $('<span style="position: absolute"/>');
+	  var t = $(this);
   }
    
 
