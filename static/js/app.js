@@ -68,7 +68,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
       
         var drow = [
             uuid,
-			"<span class='mach-state-icon' id='mstate-" + uuid + "'/>", // state
+			"<span></span>", // state
 			cmd.name, // name
 			'', // uuid
 			"<span class='mach-memory'>" + cmd.memory + " MB</span>", // Memory size
@@ -79,8 +79,8 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
         
         if (op === "add") {
         	var rr = table.row.add(drow).draw().node();
+        	$(rr.cells[0]).stateReflectorController(uuid, cmd.state, {});
         	$(rr.cells[2]).shortener(uuid, 6);
-			machineStateElement(uuid).machineCtrl(cmd.state);
         }
         else {
         	try {

@@ -1,69 +1,76 @@
 define(["jquery", "jquery-ui"], function($) {
 	  (function($) {
-		  $.fn.machineCtrl = function(initState) {
-	  	
+		  $.fn.stateReflectorController = function(uuid, initState, options) {
+
+			  var options = {
+					  "states": {
+						  "FirstOnline": { "clazz": "vm-state-FirstOnline" },
+						  "PoweredOff": { "clazz": "vm-state-PoweredOff" },
+						  "Aborted": { "clazz": "vm-state-Aborted" },
+						  "Paused": { "clazz": "vm-state-Paused" },
+						  "Starting": { "clazz": "vm-state-Starting" },
+						  "Stopping": { "clazz": "vm-state-Stopping" },
+						  "_pending": { "clazz": "vm-state-_pending"}
+					  },
+					  "menu": [
+						  { title: 'Start', op: 'vmstart', img: 'control.png', enabled: ['PoweredOff', 'Aborted'] },
+						  { title: 'Power Off (ACPI)', op: 'vmpoweroffacpi', img: 'control-power.png', enabled: ['FirstOnline', 'Paused'] },
+						  { title: 'Power Off', op: 'vmpoweroff', img: 'control-stop-square.png', enabled: ['FirstOnline'] },
+						  { title: 'Pause', op: 'vmpause', img: 'control-pause.png', enabled: ['FirstOnline'] },
+						  { title: 'Resume', op: 'vmresume', img: 'control-double.png', enabled: ['Paused'] },					  
+					  ]
+
+			  }
+			  
 			  $.each(this, function(index, el) {
 
-				  var uuid = el.id.substr(7);
-				  
-				  // Check if a popup menu for this element has already been
-				  // created, if not create one
-				  if (this._mach_popup === undefined) {
-					  createPopupMenu($(this), uuid);
-					  $.extend(this, {_mach_popup: true});
-				  }
-
-				  // Set the class to the state icon
-				  setStateClass(el, stateToClass(initState));
-				  
-				  // Enable/disable appropriate menu items
-				  $('#mach-control-menu-' + uuid).find("li").each(function(indx, val) {
-					 if (_machControlMenu[indx].enabled.indexOf(initState) != -1)
-						 // Enable the item
-						 $(val).removeClass('menu-grayed');
-					 else
-						 $(val).addClass('menu-grayed');
+				  // Create per-instance state
+				  $.extend(el, {
+					  _srcState: undefined,
+					  _srcClass: undefined,
+					  _srcUuid: uuid,
+					  _states: options.states,
+					  setState: function(newState) { _setState(el, newState); }
 				  });
-			 
+				  
+				  // Create the popup menu
+				  //createPopupMenu($(this), options.menu);
+				  
+				  el.setState(initState);		 
 			    });
 	  		    
 	  	    return this;
-		}
-		  var _machControlMenu = [
-				  { title: 'Start', op: 'vmstart', img: 'control.png', enabled: ['PoweredOff', 'Aborted'] },
-				  { title: 'Power Off (ACPI)', op: 'vmpoweroffacpi', img: 'control-power.png', enabled: ['FirstOnline', 'Paused'] },
-				  { title: 'Power Off', op: 'vmpoweroff', img: 'control-stop-square.png', enabled: ['FirstOnline'] },
-				  { title: 'Pause', op: 'vmpause', img: 'control-pause.png', enabled: ['FirstOnline'] },
-				  { title: 'Resume', op: 'vmresume', img: 'control-double.png', enabled: ['Paused'] },
-		  ]
-	 
-		  function stateToClass(state) {
+		  }
+		  
+		  function _setState(el, newState) {
 			  // Make sure the state is legal
-			  var states = ["PoweredOff", "Starting", "FirstOnline", "Paused", "Aborted", "Stopping", "_pending"];
-			  if (states.indexOf(state) >= 0) {
-				  return "vm-state-" + state;
+			  var s = el._states[newState];
+			  if (s === undefined) {
+				  console.error("Illegal state [" + newState + "] received");
+				  return;
 			  }
-			  else {
-				  console.error("Illegal state [" + state + "] received");
-			  }
-		  }
-		  
-		  function setStateClass(obj, clz) {
-			cl = obj.classList;
-			ncl = []
-			cl.forEach(function(el) {
-				if (!el.startsWith("vm-state-"))
-					ncl.push(el);
-			})
-			ncl.push(clz);
-			obj.className = ncl.join(" ");
-		  }
-		  
-		  function createMenu() {
-			  var menu = $('<ul class="machine-menu"><div class="machine-menu-gutter"></div></ul>');
 			  
+			  var clz = s.clazz;
+			  
+			  // Remove current state class, if applied 
+			  if (el._srcClass !== undefined)
+				  $(el).removeClass(el._srcClass);
+			  
+			  $(el).addClass(clz);
+/*			  
+			  // Menu
+			  // Enable/disable appropriate menu items
+			  $('#mach-control-menu-' + uuid).find("li").each(function(indx, val) {
+				 if (_machControlMenu[indx].enabled.indexOf(initState) != -1)
+					 // Enable the item
+					 $(val).removeClass('menu-grayed');
+				 else
+					 $(val).addClass('menu-grayed');
+			  });*/
+
 		  }
-		  
+	 
+		  	  
 		  function createPopupMenu(target, uuid) {
 			  var menu = $('<ul>');
 			  menu.addClass("mach-control-menu");
