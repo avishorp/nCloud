@@ -68,7 +68,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
       
         var drow = [
             uuid,
-			"<span></span>", // state
+			"<span id='mstate-" + uuid + "'></span>", // state
 			cmd.name, // name
 			'', // uuid
 			"<span class='mach-memory'>" + cmd.memory + " MB</span>", // Memory size
@@ -79,7 +79,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
         
         if (op === "add") {
         	var rr = table.row.add(drow).draw().node();
-        	$(rr.cells[0]).stateReflectorController(uuid, cmd.state, {});
+        	$(rr.cells[0]).find("span").stateReflectorController(uuid, cmd.state, {});
         	$(rr.cells[2]).shortener(uuid, 6);
         }
         else {
@@ -105,7 +105,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
     	  
       case "machstate":
     	  // Update a machine state
-    	  machineStateElement(cmd.uuid).machineCtrl(cmd.newstate);
+    	  machineStateElement(cmd.uuid).setState(cmd.newstate);
     	  break;
     	  
       case "asyncerror":
@@ -128,7 +128,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
   }
   
   function machineStateElement(uuid) {
-	  return $("#mstate-"+uuid);
+	  return $("#mstate-"+uuid)[0];
   }
   
   function uuidtest() {

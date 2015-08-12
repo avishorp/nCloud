@@ -57,6 +57,7 @@ define(["jquery", "jquery-ui"], function($) {
 				  $(el).removeClass(el._srcClass);
 			  
 			  $(el).addClass(clz);
+			  el._srcClass = clz;
 /*			  
 			  // Menu
 			  // Enable/disable appropriate menu items
