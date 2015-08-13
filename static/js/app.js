@@ -103,9 +103,9 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
           // Set-up a new row
           var drow = [
               uuid,
-			  "", //"<span id='mstate-" + uuid + "'></span>", // state
+			  "", // state
 			  cmd.name, // name
-			  '', // uuid
+			  uuid, // uuid
 			  "<span class='mach-memory'>" + cmd.memory + "</span>", // Memory size
 			  "<span class='mach-cpus'>" + cmd.cpus + "</span>", // Number of CPUs
 			  cmd.ostype, // OS Type
@@ -116,7 +116,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
        	  var uuid_cell = $(rr.cells[0])
        	  uuid_cell.stateReflectorController(uuid, cmd.state, vmStateIcon);
        	  uuid_cell.attr('id', 'mstate-' + uuid)
-       	  $(rr.cells[2]).shortener(uuid, 6);
+       	  $(rr.cells[2]).shortener(6, { 'class-prefix': 'uuid' });
         }
         
       	try {

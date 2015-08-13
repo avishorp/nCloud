@@ -24,14 +24,12 @@ body {
 }
 
 
-.shortener-short {
+.uuid-short {
 	font-family: 'Roboto Mono';
 	text-transform: uppercase;
 }
 
-.shortener-long {
-	font-family: 'Roboto Mono';
-	text-transform: uppercase;
+.uuid-long {
 	position: absolute;
 	display: none;
 	margin: -1px 0 0 -5px;

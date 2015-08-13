@@ -6,13 +6,31 @@ define(["jquery"], function($) {
   // shortener Plugin
   ///////////////////
   (function($) {
-	  $.fn.shortener = function(text, shortLen) {
+	  $.fn.shortener = function(maxShortLength, options) {
+		  var defaults = {
+				  'class-prefix': 'shortener'
+		  };
+		  $.extend(defaults, options);
+		  
 		  // Short form
-		  var shorttext = $('<span class="shortener-short">' + text.substr(0, shortLen) + '</span>');
+		  var text = $(this).text()
+		  var textsh = text.substr(0, maxShortLength);
+		  $(this).text('');
+		  var shortClass = defaults['class-prefix'] + '-short';
+		  if (defaults['class-short'] !== undefined)
+		    shortClass = defaults['class-short'];
+  		
+		  var shorttext = $('<span class="' + shortClass + '">' + textsh + '</span>');
 		  $(this).append(shorttext);
 		  
 		  // Long form
-		  var longtext = $('<span class="shortener-long">' + text + '</span>');
+		  // The long form gets both the sort form class with long form class that may
+		  // override it
+		  var longClass = shortClass + ' ' + defaults['class-prefix'] + '-long';
+		  if (defaults['class-long'] !== undefined)
+			  longClass = defaults['class-long'];
+		  var longtext = $('<span class="' + longClass + '">' + text + '</span>');
+
 		  $(this).append(longtext);
 		  
 		  // Attach the hover process
