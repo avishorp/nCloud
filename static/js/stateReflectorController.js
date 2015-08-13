@@ -1,27 +1,7 @@
 define(["jquery", "jquery-ui"], function($) {
 	  (function($) {
 		  $.fn.stateReflectorController = function(uuid, initState, options) {
-
-			  var options = {
-					  "states": {
-						  "FirstOnline": { "clazz": "vm-state-FirstOnline" },
-						  "PoweredOff": { "clazz": "vm-state-PoweredOff" },
-						  "Aborted": { "clazz": "vm-state-Aborted" },
-						  "Paused": { "clazz": "vm-state-Paused" },
-						  "Starting": { "clazz": "vm-state-Starting" },
-						  "Stopping": { "clazz": "vm-state-Stopping" },
-						  "_pending": { "clazz": "vm-state-_pending"}
-					  },
-					  "menu": [
-						  { title: 'Start', op: 'vmstart', img: 'control.png', enabled: ['PoweredOff', 'Aborted'] },
-						  { title: 'Power Off (ACPI)', op: 'vmpoweroffacpi', img: 'control-power.png', enabled: ['FirstOnline', 'Paused'] },
-						  { title: 'Power Off', op: 'vmpoweroff', img: 'control-stop-square.png', enabled: ['FirstOnline'] },
-						  { title: 'Pause', op: 'vmpause', img: 'control-pause.png', enabled: ['FirstOnline'] },
-						  { title: 'Resume', op: 'vmresume', img: 'control-double.png', enabled: ['Paused'] },					  
-					  ]
-
-			  }
-			  
+  
 			  $.each(this, function(index, el) {
 
 				  // Create per-instance state
@@ -34,7 +14,7 @@ define(["jquery", "jquery-ui"], function($) {
 				  });
 				  
 				  // Create the popup menu
-				  //createPopupMenu($(this), options.menu);
+				  createPopupMenu($(this), options.menu);
 				  
 				  el.setState(initState);		 
 			    });
@@ -72,14 +52,14 @@ define(["jquery", "jquery-ui"], function($) {
 		  }
 	 
 		  	  
-		  function createPopupMenu(target, uuid) {
+		  function createPopupMenu(target, menudef) {
 			  var menu = $('<ul>');
 			  menu.addClass("mach-control-menu");
-			  menu.attr('id', 'mach-control-menu-' + uuid)
+			  //menu.attr('id', 'mach-control-menu-' + uuid)
 			  
 			  // Create menu items
-			  $.each(_machControlMenu, function(indx, val) {
-				 menu.append(createPopupMenuItem(val['title'], uuid, val['op'], val['img'], "")); 
+			  $.each(menudef, function(indx, val) {
+				 menu.append(createPopupMenuItem(val['title'], "", val['op'], val['img'], "")); 
 			  });
 
 			  // Append the menu to the target element

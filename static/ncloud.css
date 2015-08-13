@@ -14,10 +14,15 @@ body {
 	display: block;
 }
 
+.mach-memory:after {
+	content: " MB";
+}
+
 .mach-cpus {
 	text-align: center;
 	display: block;
 }
+
 
 .shortener-short {
 	font-family: 'Roboto Mono';

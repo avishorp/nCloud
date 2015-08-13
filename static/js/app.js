@@ -1,5 +1,38 @@
 define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController", "shortener"], function($) {
   
+  var vmStateIcon = {
+    "states": {
+	  "FirstOnline": { "clazz": "vm-state-FirstOnline" },
+	  "PoweredOff": { "clazz": "vm-state-PoweredOff" },
+      "Aborted": { "clazz": "vm-state-Aborted" },
+	  "Paused": { "clazz": "vm-state-Paused" },
+	  "Starting": { "clazz": "vm-state-Starting" },
+	  "Stopping": { "clazz": "vm-state-Stopping" },
+	  "_pending": { "clazz": "vm-state-_pending"}
+	},
+	"menu": [
+	  { title: 'Start', img: 'control.png', enabled: ['PoweredOff', 'Aborted'],
+		  onclick: function(id) { execVBoxCommand(id, 'vmstart'); },
+	  },
+	  { title: 'Power Off (ACPI)', img: 'control-power.png', enabled: ['FirstOnline', 'Paused'],
+		  onclick: function(id) { execVBoxCommand(id, 'vmpoweroffacpi'); },
+	  },
+	  { title: 'Power Off', img: 'control-stop-square.png', enabled: ['FirstOnline'],
+		  onclick: function(id) { execVBoxCommand(id, 'vmpoweroff'); },		  
+	  },
+	  { title: 'Pause', img: 'control-pause.png', enabled: ['FirstOnline'],
+		  onclick: function(id) { execVBoxCommand(id, 'vmpause'); },	  
+	  },
+	  { title: 'Resume', op: 'vmresume', img: 'control-double.png', enabled: ['Paused'],
+	  onclick: function(id) { execVBoxCommand(id, 'vmresume'); },	
+	  },					  
+	 ]
+  };
+  
+  function execVBoxCommand(uuid, command) {
+	  d
+  }
+	  
   $(function() {
     // Create the VM table
     $("#tabs").tabs();
@@ -62,35 +95,42 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
     
     switch(op) {
       case "add":
-      case "modify":
+      case 'modify':
     	// Add machine to the list
         var uuid = cmd.uuid
-      
-        var drow = [
-            uuid,
-			"<span id='mstate-" + uuid + "'></span>", // state
-			cmd.name, // name
-			'', // uuid
-			"<span class='mach-memory'>" + cmd.memory + " MB</span>", // Memory size
-			"<span class='mach-cpus'>" + cmd.cpus + "</span>", // Number of CPUs
-			cmd.ostype, // OS Type
-			cmd.description // Description
-                   ]
+
+        if (op === 'add') {
+          // Set-up a new row
+          var drow = [
+              uuid,
+			  "", //"<span id='mstate-" + uuid + "'></span>", // state
+			  cmd.name, // name
+			  '', // uuid
+			  "<span class='mach-memory'>" + cmd.memory + "</span>", // Memory size
+			  "<span class='mach-cpus'>" + cmd.cpus + "</span>", // Number of CPUs
+			  cmd.ostype, // OS Type
+			  cmd.description // Description
+              ];
         
-        if (op === "add") {
-        	var rr = table.row.add(drow).draw().node();
-        	$(rr.cells[0]).find("span").stateReflectorController(uuid, cmd.state, {});
-        	$(rr.cells[2]).shortener(uuid, 6);
+       	  var rr = table.row.add(drow).draw().node();
+       	  var uuid_cell = $(rr.cells[0])
+       	  uuid_cell.stateReflectorController(uuid, cmd.state, vmStateIcon);
+       	  uuid_cell.attr('id', 'mstate-' + uuid)
+       	  $(rr.cells[2]).shortener(uuid, 6);
         }
-        else {
-        	try {
-        		r = findRowByUUID(uuid);
-        		r.data(drow).draw()
-        	}
-        	catch(err) {
-        		console.error("[modify] " + err);
-        	}
-        }
+        
+      	try {
+          var r = findRowByUUID(cmd.uuid).node().cells;
+          $(r[1]).html(cmd.name);
+          $(r[3]).find('span').html(cmd.memory);
+          $(r[4]).find('span').html(cmd.cpus);
+          $(r[5]).html(cmd.ostype);
+          $(r[6]).html(cmd.description);
+          table.draw();
+    	}
+    	catch(err) {
+    		console.error("[modify] " + err);
+    	}
         break;
         
       case "del":
@@ -105,7 +145,11 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
     	  
       case "machstate":
     	  // Update a machine state
-    	  machineStateElement(cmd.uuid).setState(cmd.newstate);
+    	  var el = machineStateElement(cmd.uuid)
+    	  if (el === undefined)
+    		  console.log("Trying to change state of an unregistered machine " + cmd.uuid);
+    	  else
+    		  el.setState(cmd.newstate);
     	  break;
     	  
       case "asyncerror":
