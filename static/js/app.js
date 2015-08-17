@@ -1,14 +1,15 @@
 define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController", "shortener"], function($) {
   
+
   var vmStateIcon = {
     "states": {
-	  "FirstOnline": { "clazz": "vm-state-FirstOnline" },
-	  "PoweredOff": { "clazz": "vm-state-PoweredOff" },
-      "Aborted": { "clazz": "vm-state-Aborted" },
-	  "Paused": { "clazz": "vm-state-Paused" },
-	  "Starting": { "clazz": "vm-state-Starting" },
-	  "Stopping": { "clazz": "vm-state-Stopping" },
-	  "_pending": { "clazz": "vm-state-_pending"}
+	  "FirstOnline": { icon: "/static/icon-play.png" },
+	  "PoweredOff": { icon: "/static/icon-stop.png" },
+      "Aborted": { icon: "/static/icon-stop.png" },
+	  "Paused": { icon: "/static/icon-pause.png" },
+	  "Starting": { icon: "/static/icon-play.png", "clazz": "softblink" },
+	  "Stopping": { icon: "/static/icon-stop.png", "clazz": "softblink" },
+	  "_pending": { icon: "/static/ajax-loader.gif" }
 	},
 	"menu": [
 	  { title: 'Start', img: 'control.png', enabled: ['PoweredOff', 'Aborted'],
@@ -30,7 +31,7 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
   };
   
   function execVBoxCommand(uuid, command) {
-	  d
+	 // d
   }
 	  
   $(function() {
@@ -51,7 +52,9 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
 	  url: "/vbox/list",
 	  dataType: 'json'
 	  }).done(function(data) {
-	    $.each(data, function(index, value) { execTableCommand(value) })
+	    $.each(data, function(index, value) { 
+	    	execTableCommand(value);
+	    	});
 	  });
 	
 	// Create a websocket to receive update feed

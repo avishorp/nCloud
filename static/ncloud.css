@@ -79,34 +79,8 @@ body {
 	margin-right: 4px;
 }
 
-.vm-state-FirstOnline {
-	content: url(/static/icon-play.png);
-}
-
-.vm-state-PoweredOff {
-	content: url(/static/icon-stop.png);
-}
-
-.vm-state-Aborted {
-	content: url(/static/icon-stop.png);
-}
-
-.vm-state-Paused {
-	content: url(/static/icon-pause.png);
-}
-
-.vm-state-Starting {
-	content: url(/static/icon-play.png);
+.softblink {
 	animation: softblink 0.3s infinite alternate;
-}
-
-.vm-state-Stopping {
-	content: url(/static/icon-stop.png);
-	animation: softblink 0.3s infinite alternate;
-}
-
-.vm-state-_pending {
-	content: url(/static/ajax-loader.gif);
 }
 
 @keyframes softblink {

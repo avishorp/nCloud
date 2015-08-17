@@ -13,6 +13,9 @@ define(["jquery", "jquery-ui"], function($) {
 					  setState: function(newState) { _setState(el, newState); }
 				  });
 				  
+				  // Create an img tag for the icon
+				  $(el).html('<img class="state-icon"></img>');
+				  
 				  // Create the popup menu
 				  createPopupMenu($(this), options.menu);
 				  
@@ -38,6 +41,9 @@ define(["jquery", "jquery-ui"], function($) {
 			  
 			  $(el).addClass(clz);
 			  el._srcClass = clz;
+			  
+			  // State icon
+			  $(el).find('.state-icon').attr('src', s.icon);
 /*			  
 			  // Menu
 			  // Enable/disable appropriate menu items
