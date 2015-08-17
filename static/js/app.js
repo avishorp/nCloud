@@ -30,8 +30,17 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
 	 ]
   };
   
-  function execVBoxCommand(uuid, command) {
-	 // d
+  function execVBoxCommand(uuid, command) {		    
+     	var opurl = "/vbox/" + command + "?uuid=" + uuid;
+ 		$.ajax({
+		  url: opurl
+ 		}).done(function() {
+      			
+      });
+ 		
+ 	  // Change the machine state to "pending"
+	  cmd = { op: 'machstate', uuid: uuid, newstate: '_pending' };
+	  execTableCommand(cmd);
   }
 	  
   $(function() {

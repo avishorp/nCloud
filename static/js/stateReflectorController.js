@@ -10,6 +10,8 @@ define(["jquery", "jquery-ui"], function($) {
 					  _srcClass: undefined,
 					  _srcUuid: uuid,
 					  _states: options.states,
+					  _srcContextMenuDef: options.menu,
+					  _srcContextMenu: undefined,
 					  setState: function(newState) { _setState(el, newState); }
 				  });
 				  
@@ -44,16 +46,16 @@ define(["jquery", "jquery-ui"], function($) {
 			  
 			  // State icon
 			  $(el).find('.state-icon').attr('src', s.icon);
-/*			  
+			  
 			  // Menu
 			  // Enable/disable appropriate menu items
-			  $('#mach-control-menu-' + uuid).find("li").each(function(indx, val) {
-				 if (_machControlMenu[indx].enabled.indexOf(initState) != -1)
+			  $(el._srcContextMenu).find("li").each(function(indx, val) {
+				 if (el._srcContextMenuDef[indx].enabled.indexOf(newState) != -1)
 					 // Enable the item
 					 $(val).removeClass('menu-grayed');
 				 else
 					 $(val).addClass('menu-grayed');
-			  });*/
+			  });
 
 		  }
 	 
@@ -61,16 +63,13 @@ define(["jquery", "jquery-ui"], function($) {
 		  function createPopupMenu(target, menudef) {
 			  var menu = $('<ul>');
 			  menu.addClass("mach-control-menu");
-			  //menu.attr('id', 'mach-control-menu-' + uuid)
+			  var uuid = target.get(0)._srcUuid;
 			  
 			  // Create menu items
 			  $.each(menudef, function(indx, val) {
-				 menu.append(createPopupMenuItem(val['title'], "", val['op'], val['img'], "")); 
+				 menu.append(createPopupMenuItem(val['title'], uuid, val['onclick'], val['img'], "")); 
 			  });
-
-			  // Append the menu to the target element
-			  target.append(menu);
-			  
+		  
 			  // Bind the click event
 			  target.click(function(e) {
 				   // Calculate the pop-up menu position
@@ -95,7 +94,11 @@ define(["jquery", "jquery-ui"], function($) {
 				     .show();
 			  });
 			  
+			  // Add the menu to body (so it can be placed anywhere)
 			  $('body').append(menu);
+			  
+			  // Insert a reference to the menu
+			  target.get(0)._srcContextMenu =  menu;
 		  }
 		  
 		  function createPopupMenuItem(title, uuid, op, img, clazz) {
@@ -111,23 +114,14 @@ define(["jquery", "jquery-ui"], function($) {
 				// Check if the item is not grayed
 				if ($(this).parent().hasClass('menu-grayed'))
 					// Grayed - return without doing anything (not even close the menu)
-				    return
+				    return;
 				    
 				// Execute the menu operation
-	           	var opurl = "/vbox/" + op + "?uuid=" + uuid;
-	       		$.ajax({
-	  			  url: opurl
-	       		}).done(function() {
-		        			
-		        });
+				op(uuid);
 				  
 				// Hide the menu
 				$(this).parent().parent().hide();
-				$('#mach-control-menu-screen').hide();
-				
-				// Change the machine state to "pending"
-				cmd = { op: 'machstate', uuid: uuid, newstate: '_pending' };
-				execTableCommand(cmd);
+				$('#mach-control-menu-screen').hide();			
 			  });
 			  
 			  return li.append(icon).append(hl);
