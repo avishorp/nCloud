@@ -4,17 +4,18 @@ nanoCloud - Tiny virtual computer management system
 
 import sys
 sys.path.append('lib')
-from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
+from ws4py.server.cherrypyserver import WebSocketPlugin
 from ws4py import configure_logger
 import cherrypy, logging
 import os.path
 from vbox import VBoxStatePlugin, VBoxAPI
-import vbox
+from vagrant import VagrantCtrl, VAGRANT_WORKING_DIR
 
 class NCloudRoot:
 
     def __init__(self):
         self.vbox = VBoxAPI()
+        self.vagrant = VagrantCtrl(VAGRANT_WORKING_DIR)
 
     @cherrypy.expose
     def index(self):
@@ -40,3 +41,11 @@ if __name__ == '__main__':
     # to objects, so we need to mount a request handler root. A request
     # to '/' will be mapped to HelloWorld().index().
     cherrypy.quickstart(NCloudRoot(), config=tutconf)
+    
+# TODO:
+# - Pre-run checks:
+#    * Make sure VBox python extensions are installed
+#    * Make sure Vagrant executable exists, running and has the appropriate version
+#    * Make sure the the Vagrant workspace directory exists
+# - Handle empty tables gracefully (VM/Vagrant)
+# - Deleted machines (unknown state)

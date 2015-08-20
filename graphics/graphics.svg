@@ -25,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="-52.142857"
-     inkscape:cy="520"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="-830.91895"
+     inkscape:cy="1097.4765"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1018"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="1343"
+     inkscape:window-height="656"
+     inkscape:window-x="1995"
+     inkscape:window-y="104"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -100,6 +100,92 @@
          width="74.285706"
          id="rect4150"
          style="fill:#d40000;fill-opacity:1;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <rect
+       inkscape:export-ydpi="7.0623608"
+       inkscape:export-xdpi="7.0623608"
+       inkscape:export-filename="C:\temp\nCloud\static\icon-vag-stop.png"
+       y="38.076496"
+       x="-1262.8572"
+       height="225.71428"
+       width="205.71428"
+       id="rect5245"
+       style="fill:#5c9cc1;fill-opacity:1;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       inkscape:transform-center-y="-20.649687"
+       transform="matrix(0,-0.60764677,0.81969565,0,-971.95366,-966.29205)"
+       sodipodi:type="star"
+       style="fill:#5c9cc1;fill-opacity:1;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5247"
+       sodipodi:sides="3"
+       sodipodi:cx="-1183.8094"
+       sodipodi:cy="-250.76353"
+       sodipodi:r1="135.93193"
+       sodipodi:r2="67.965973"
+       sodipodi:arg1="0"
+       sodipodi:arg2="1.0471976"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m -1047.8775,-250.76353 -101.949,58.86026 -101.9489,58.86024 0,-117.72051 0,-117.7205 101.9489,58.86025 z"
+       inkscape:export-filename="C:\temp\nCloud\static\icon-play.png"
+       inkscape:export-xdpi="7.0623608"
+       inkscape:export-ydpi="7.0623608" />
+    <g
+       inkscape:export-ydpi="7.0623608"
+       inkscape:export-xdpi="7.0623608"
+       inkscape:export-filename="C:\temp\nCloud\static\icon-vag-pause.png"
+       transform="matrix(1,0,0,0.94047619,-271.42857,783.66102)"
+       id="g5249"
+       style="fill:#5c9cc1;fill-opacity:1">
+      <rect
+         y="-370.49493"
+         x="-1000"
+         height="240"
+         width="74.285706"
+         id="rect5251"
+         style="fill:#5c9cc1;fill-opacity:1;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         style="fill:#5c9cc1;fill-opacity:1;stroke:none;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect5253"
+         width="74.285706"
+         height="240"
+         x="-874.28571"
+         y="-370.49493" />
+    </g>
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5255"
+       width="205.71428"
+       height="225.71428"
+       x="-1280"
+       y="-379.06638"
+       inkscape:export-filename="C:\temp\nCloud\static\icon-stop.png"
+       inkscape:export-xdpi="7.0623608"
+       inkscape:export-ydpi="7.0623608" />
+    <rect
+       inkscape:export-ydpi="7.0623608"
+       inkscape:export-xdpi="7.0623608"
+       inkscape:export-filename="C:\temp\nCloud\static\icon-stop.png"
+       y="-738.68066"
+       x="-1288.0812"
+       height="225.71428"
+       width="205.71428"
+       id="rect5259"
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:12;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <g
+       id="g5265"
+       transform="matrix(1.1966914,0,0,1.1966914,-317.93506,301.41861)">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5261"
+         d="m -778.10269,-824.98585 105.16289,105.25719"
+         style="fill:none;fill-rule:evenodd;stroke:#5c9cc1;stroke-width:17.82009506;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         style="fill:none;fill-rule:evenodd;stroke:#5c9cc1;stroke-width:17.82009506;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m -672.9398,-824.98585 -105.16289,105.25719"
+         id="path5263"
+         inkscape:connector-curvature="0" />
     </g>
   </g>
 </svg>

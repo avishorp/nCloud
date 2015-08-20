@@ -29,7 +29,44 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
 	  },					  
 	 ]
   };
-  
+
+  var vagStateIcon = {
+		    "states": {
+			  "not_created": { icon: "/static/icon-vag-notcreated.png", tooltip: "Not Created" },
+			  "running": { icon: "/static/icon-vag-up.png", tooltip: "Up (Running)" },
+		      "poweroff": { icon: "/static/icon-vag-stop.png" },
+			  "paused": { icon: "/static/icon-vag-pause.png" },
+			  "_pending": { icon: "/static/ajax-loader.gif" }
+			},
+			"menu": [
+			  { title: 'Up', img: 'control.png', enabled: ['not_created'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmstart'); },
+			  },
+			  { title: 'Halt', img: 'control-power.png', enabled: ['running'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmpoweroffacpi'); },
+			  },
+			  { title: 'Destroy', img: 'control-stop-square.png', enabled: ['running', 'poweroff', 'paused'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmpoweroff'); },		  
+			  },
+			  { title: 'Suspend', img: 'control-stop-square.png', enabled: ['running'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmpoweroff'); },		  
+			  },
+			  { title: 'Resume', img: 'control-stop-square.png', enabled: ['paused'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmpoweroff'); },		  
+			  },
+			  { title: 'Provision', img: 'control-pause.png', enabled: ['running'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmpause'); },	  
+			  },
+			  { title: 'SSH', op: 'vmresume', img: 'control-double.png', enabled: ['running'],
+			  onclick: function(id) { execVagrantCommand(id, 'vmresume'); },	
+			  },
+			  { title: 'SSH Info', op: 'vmresume', img: 'control-double.png', enabled: ['running'],
+				  onclick: function(id) { execVagrantCommand(id, 'vmresume'); },	
+			  },					  
+			  
+			 ]
+		  };
+
   function execVBoxCommand(uuid, command) {		    
      	var opurl = "/vbox/" + command + "?uuid=" + uuid;
  		$.ajax({
@@ -42,9 +79,14 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
 	  cmd = { op: 'machstate', uuid: uuid, newstate: '_pending' };
 	  execTableCommand(cmd);
   }
+  
+  function execVagrantCommand(uuid, command) {
+	  alert('Executing ' + command + ' on ' + uuid);
+  }
 	  
   $(function() {
     // Create the VM table
+	//////////////////////
     $("#tabs").tabs();
 	var t = $("#vmtable").DataTable(
 	 {
@@ -87,6 +129,33 @@ define(["jquery", "jquery-ui", "datatables", "noty", "stateReflectorController",
 		fatalAppError("Disconnected from server. <a href='#' onclick='javascript: location.reload()'>Reload the page</a>")
     }
     
+    // Create Vagrant Environments table
+    ////////////////////////////////////
+	$("#envtable").DataTable(
+			 {
+			   "paging": false,
+			   "ordering": false,
+			   "info": false,
+			   "searching": false
+			 }
+			);
+	
+	// Populate it
+	$.ajax({
+	  url: "/vagrant/listenvs",
+	  dataType: 'json'
+	  }).done(function(data) {
+		    var table = $("#envtable").DataTable(); 
+
+	    $.each(data, function(index, value) { 
+	    	  var drow = [ "", value.name, "---" ];
+	       	  var rr = table.row.add(drow).draw().node();
+	       	  var uuid_cell = $(rr.cells[0])
+	       	  uuid_cell.stateReflectorController(value.name, "_pending", vagStateIcon);
+	    	});
+	  });
+	
+
     
     // noty defaults
     ////////////////
